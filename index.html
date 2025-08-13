@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Виселица</title>
+<style>
+    body { font-family: sans-serif; text-align: center; }
+    pre { font-size: 16px; }
+    #word { font-size: 24px; letter-spacing: 5px; }
+    #letters { margin-top: 10px; }
+    button { margin: 2px; padding: 5px 10px; }
+</style>
+</head>
+<body>
+
+<h1>Виселица</h1>
+<pre id="gallows"></pre>
+<div id="word"></div>
+<div>Ошибки: <span id="misses">0</span> / <span id="max"></span></div>
+<div>Использованные буквы: <span id="used"></span></div>
+<div id="letters"></div>
+
+<script>
+const wordsBase = [
+    "АЛГОРИТМ", "ПРОГРАММИСТ", "КОМПИЛЯТОР", "ИНТЕРНЕТ", "МОДУЛЬ",
+    "ЦИКЛ", "ФУНКЦИЯ", "СТРУКТУРА", "БИБЛИОТЕКА", "МАССИВ",
+    "КЛАСС", "ОБЪЕКТ", "ИНКАПСУЛЯЦИЯ", "НАСЛЕДОВАНИЕ", "ПОЛИМОРФИЗМ",
+    "ДАННЫЕ", "СЕРВЕР", "КЛИЕНТ", "ПРОТОКОЛ"
+];
+
+const gallows = [
+` 
+ _______
+ |/     
+ |      
+ |      
+ |      
+ |      
+_|___
+`,
+` 
+ _______
+ |/     |
+ |      
+ |      
+ |      
+ |      
+_|___
+`,
+` 
+ _______
+ |/     |
+ |     ( )
+ |      
+ |      
+ |      
+_|___
+`,
+` 
+ _______
+ |/     |
+ |     ( )
+ |      |
+ |      |
+ |      
+_|___
+`,
+` 
+ _______
+ |/     |
+ |     ( )
+ |     /|
+ |      |
+ |      
+_|___
+`,
+` 
+ _______
+ |/     |
+ |     ( )
+ |     /|\\
+ |      |
+ |      
+_|___
+`,
+` 
+ _______
+ |/     |
+ |     ( )
+ |     /|\\
+ |      |
+ |     / 
+_|___
+`,
+` 
+ _______
+ |/     |
+ |     ( )
+ |     /|\\
+ |      |
+ |     / \\
+_|___
+`
+];
+
+const MAX_MISSES = gallows.length - 1;
+document.getElementById("max").textContent = MAX_MISSES;
+
+let word = wordsBase[Math.floor(Math.random() * wordsBase.length)];
+let guessed = new Set();
+let usedLetters = new Set();
+let misses = 0;
+
+function getMaskedWord() {
+    return word.split("").map(ch => guessed.has(ch) ? ch : "_").join(" ");
+}
+
+function updateScreen() {
+    document.getElementById("gallows").textContent = gallows[misses];
+    document.getElementById("word").textContent = getMaskedWord();
+    document.getElementById("misses").textContent = misses;
+    document.getElementById("used").textContent = [...usedLetters].join(", ");
+}
+
+function guessLetter(letter) {
+    if (usedLetters.has(letter)) return;
+    usedLetters.add(letter);
+
+    if (word.includes(letter)) {
+        guessed.add(letter);
+    } else {
+        misses++;
+    }
+
+    updateScreen();
+
+    if ([...word].every(ch => guessed.has(ch))) {
+        setTimeout(() => alert(`Поздравляю! Вы угадали слово: ${word}`), 100);
+    } else if (misses >= MAX_MISSES) {
+        setTimeout(() => alert(`Вы проиграли! Слово было: ${word}`), 100);
+    }
+}
+
+function createLetterButtons() {
+    const container = document.getElementById("letters");
+    "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".split("").forEach(ch => {
+        let btn = document.createElement("button");
+        btn.textContent = ch;
+        btn.onclick = () => guessLetter(ch);
+        container.appendChild(btn);
+    });
+}
+
+createLetterButtons();
+updateScreen();
+</script>
+
+</body>
+</html>
